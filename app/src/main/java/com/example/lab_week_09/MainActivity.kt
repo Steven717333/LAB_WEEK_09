@@ -281,19 +281,31 @@ fun ResultContent(listData: String) {
     val type = Types.newParameterizedType(List::class.java, Student::class.java)
     val adapter = moshi.adapter<List<Student>>(type)
     val students = remember { adapter.fromJson(listData) ?: emptyList() }
+
     Column(
         modifier = Modifier
-            .padding(vertical = 4.dp)
+            .padding(vertical = 16.dp, horizontal = 24.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OnBackgroundTitleText(text = "Result Content")
+
+        androidx.compose.foundation.layout.Spacer(modifier = Modifier.padding(top = 16.dp))
+
         LazyColumn {
             items(students) { student ->
-                OnBackgroundItemText(text = student.name)
+                Column(
+                    modifier = Modifier
+                        .padding(vertical = 4.dp)
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OnBackgroundItemText(text = student.name)
+                }
             }
         }
     }
 }
+
 
 
