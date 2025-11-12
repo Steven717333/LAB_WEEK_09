@@ -37,6 +37,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lab_week_09.ui.theme.LAB_WEEK_09Theme
 import androidx.navigation.navArgument
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.squareup.moshi.Types
 
 
 
@@ -150,7 +153,13 @@ fun Home(navigateFromHomeToResult: (String) -> Unit
                 inputField.value = Student("")
             }
         },
-        { navigateFromHomeToResult(listData.toList().toString()) }
+        {
+            val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+            val type = Types.newParameterizedType(List::class.java, Student::class.java)
+            val adapter = moshi.adapter<List<Student>>(type)
+            val json = adapter.toJson(listData.toList())
+            navigateFromHomeToResult(json)
+        }
     )
 
 }
@@ -268,14 +277,22 @@ fun TextButton(text: String, textColor: Color, onClick: () -> Unit) {
 
 @Composable
 fun ResultContent(listData: String) {
+    val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+    val type = Types.newParameterizedType(List::class.java, Student::class.java)
+    val adapter = moshi.adapter<List<Student>>(type)
+    val students = remember { adapter.fromJson(listData) ?: emptyList() }
     Column(
         modifier = Modifier
             .padding(vertical = 4.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        //Here, we call the OnBackgroundItemText UI Element
-        OnBackgroundItemText(text = listData)
+        OnBackgroundTitleText(text = "Result Content")
+        LazyColumn {
+            items(students) { student ->
+                OnBackgroundItemText(text = student.name)
+            }
+        }
     }
 }
 
